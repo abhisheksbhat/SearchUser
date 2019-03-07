@@ -4,7 +4,7 @@ using SearchUserAPI.Models;
 using SearchUserAPI.ViewModels;
 #endregion
 
-namespace SearchUserAPI
+namespace SearchUserAPI.Utility
 {
     /// <summary>
     /// Class used by AutoMapper for managing the mappings

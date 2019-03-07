@@ -1,12 +1,14 @@
 ﻿#region NameSpaces
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using SearchUserAPI.Models;
 using SearchUserAPI.Repositories;
@@ -22,22 +24,24 @@ namespace SearchUserAPI.Controllers
     [Route("api/[controller]")]
     public class SearchUserController : Controller
     {
-        private ISearchUserRepository _userRepository;
+        private ISearchUserRepository _searchUserRepository;
         private List<User> _userList = null;
         private List<UserViewModel> _userVMList = null;
         private IMapper _mapper = null;
         private ISearchDetail _searchDetail;
+        private IMemoryCache _memoryCache;
         private readonly ILogger<SearchUserController> _log;
 
         /// <summary>
         /// Default Constructor
         /// </summary>
-        /// <param name="userRepository">IUserRepository</param>
+        /// <param name="searchUserRepository">IUserRepository</param>
         /// <param name="mapper">IMapper</param>
-        public SearchUserController(ISearchUserRepository userRepository, IMapper mapper, ISearchDetail searchDetail, ILogger<SearchUserController> log)
+        public SearchUserController(ISearchUserRepository searchUserRepository, IMapper mapper, ISearchDetail searchDetail, IMemoryCache memoryCache, ILogger<SearchUserController> log)
         {
-            this._userRepository = userRepository;
+            this._searchUserRepository = searchUserRepository;
             this._mapper = mapper;
+            this._memoryCache = memoryCache;
             this._searchDetail = searchDetail;
             this._log = log;
         }
@@ -56,9 +60,12 @@ namespace SearchUserAPI.Controllers
         {
             try
             {
+                if (!await IsValidState(StateCode))
+                    throw new APIException("State Code is not valid");
+
                 this._searchDetail.StateCode = StateCode;
-                this._searchDetail.SearchCriteriaEnum = SearchCriteria.State; ;
-                this._userList = await this._userRepository.GetFilteredUsers(this._searchDetail);
+                this._searchDetail.SearchCriteriaEnum = SearchCriteria.State; 
+                this._userList = await this._searchUserRepository.GetFilteredUsers(this._searchDetail);
                 this._userVMList = this._mapper.Map<List<UserViewModel>>(this._userList);
             }
             catch (APIException ap)
@@ -85,7 +92,7 @@ namespace SearchUserAPI.Controllers
         /// <param name="ToAge"></param>
         /// <returns>List of Users matching the search criteria</returns>
         [HttpGet]
-        [Route("agerange/{FromAge:int:range(0,99)}-{ToAge:int:range(1,100)}")]
+        [Route("agerange/{FromAge:int:range(0,125)}-{ToAge:int:range(0,125)}")]
         public async Task<IActionResult> GetUsersByAgeRange(int FromAge, int ToAge)
         {
             try
@@ -94,7 +101,7 @@ namespace SearchUserAPI.Controllers
                 this._searchDetail.FromAge = FromAge;
                 this._searchDetail.ToAge = ToAge;
                 this._searchDetail.SearchCriteriaEnum = SearchCriteria.AgeRange;
-                this._userList = await this._userRepository.GetFilteredUsers(this._searchDetail);
+                this._userList = await this._searchUserRepository.GetFilteredUsers(this._searchDetail);
                 this._userVMList = this._mapper.Map<List<UserViewModel>>(this._userList);
             }
             catch (APIException ap)
@@ -122,16 +129,19 @@ namespace SearchUserAPI.Controllers
         /// <param name="ToAge"></param>
         /// <returns>List of Users matching the search criteria</returns>
         [HttpGet]
-        [Route("stateandagerange/{StateCode:alpha:length(2)}/{FromAge:int:range(0,99)}-{ToAge:int:range(1,100)}")]
+        [Route("stateandagerange/{StateCode:alpha:length(2)}/{FromAge:int:range(0,125)}-{ToAge:int:range(0,125)}")]
         public async  Task<IActionResult>  GetUsersByStateAndAgeRange(string StateCode, int FromAge, int ToAge)
         {
             try
             {
+                if (!await IsValidState(StateCode))
+                    throw new APIException("State Code is not valid");
+
                 this._searchDetail.StateCode = StateCode;
                 this._searchDetail.ToAge = ToAge;
                 this._searchDetail.FromAge = FromAge;
                 this._searchDetail.SearchCriteriaEnum = SearchCriteria.StateAndAgeRange;
-                this._userList = await this._userRepository.GetFilteredUsers(this._searchDetail);
+                this._userList = await this._searchUserRepository.GetFilteredUsers(this._searchDetail);
                 this._userVMList = this._mapper.Map<List<UserViewModel>>(this._userList);
             }
             catch (APIException ap)
@@ -158,17 +168,20 @@ namespace SearchUserAPI.Controllers
         /// <param name="ToAge"></param>
         /// <returns>List of Users matching the search criteria</returns>
         [HttpGet]
-        [Route("stateoragerange/{StateCode:alpha:length(2)}/{FromAge:int:range(0,99)}-{ToAge:int:range(1,100)}")]
+        [Route("stateoragerange/{StateCode:alpha:length(2)}/{FromAge:int:range(0,125)}-{ToAge:int:range(0,125)}")]
         public async  Task<IActionResult>  GetUsersByStateOrAgeRange(string StateCode, int FromAge, int ToAge)
         {
             try
             {
+                if (!await IsValidState(StateCode))
+                    throw new APIException("State Code is not valid");
+
                 this._searchDetail.StateCode = StateCode;
                 this._searchDetail.ToAge = ToAge;
                 this._searchDetail.FromAge = FromAge;
                 this._searchDetail.OrConditionFlag = true;
                 this._searchDetail.SearchCriteriaEnum = SearchCriteria.StateOrAgeRange;
-                this._userList = await this._userRepository.GetFilteredUsers(this._searchDetail);
+                this._userList = await this._searchUserRepository.GetFilteredUsers(this._searchDetail);
                 this._userVMList = this._mapper.Map<List<UserViewModel>>(this._userList);
             }
             catch (APIException ap)
@@ -182,6 +195,24 @@ namespace SearchUserAPI.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, "Error occured while processing the API request");
             }
             return Ok(this._userVMList);
+        }
+
+        /// <summary>
+        /// Checks if State is valid by checking StateCode with entry from MemoryCache
+        /// </summary>
+        /// <param name="StateCode"></param>
+        /// <returns>A boolean flag</returns>
+        private async Task<bool> IsValidState(string StateCode)
+        {
+            List<string> stateCodeList;
+            if(!this._memoryCache.TryGetValue("AllStateCodes", out stateCodeList))
+            {
+                var stateList = await this._searchUserRepository.GetAllStates();
+                stateCodeList = stateList.Select(x => x.Code.ToUpper()).ToList();
+                this._memoryCache.Set("AllStateCodes", stateCodeList, TimeSpan.FromHours(1d));
+            }
+
+            return stateCodeList.Contains(StateCode.ToUpper());
         }
     }
 }

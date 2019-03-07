@@ -13,5 +13,6 @@ namespace SearchUserAPI.Repositories
     {
         Task<List<User>> GetAllUsers();
         Task<List<User>> GetFilteredUsers(ISearchDetail searchDetail);
+        Task<List<State>> GetAllStates();
     }
 }

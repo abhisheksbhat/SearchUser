@@ -25,6 +25,16 @@ namespace SearchUserAPI.Repositories
         }
 
         /// <summary>
+        /// Get All the States
+        /// </summary>
+        /// <returns>Returns list of States</returns>
+        public async Task<List<State>> GetAllStates()
+        {
+            List<State> stateList = await _context.State.ToListAsync();
+            return stateList;
+        }
+
+        /// <summary>
         /// Get All the users
         /// </summary>
         /// <returns>Returns a user list</returns>

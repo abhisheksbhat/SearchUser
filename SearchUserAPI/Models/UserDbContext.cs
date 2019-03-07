@@ -19,5 +19,10 @@ namespace SearchUserAPI.Models
         /// User Entity
         /// </summary>
         public DbSet<User> User { get; set; }
+
+        /// <summary>
+        /// State
+        /// </summary>
+        public DbSet<State> State { get; set; }
     }
 }

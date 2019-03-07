@@ -2,11 +2,13 @@
 using AutoMapper;
 using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SearchUserAPI.Controllers;
 using SearchUserAPI.Models;
 using SearchUserAPI.Repositories;
+using SearchUserAPI.Utility;
 using SearchUserAPI.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -32,6 +34,8 @@ namespace SearchUserAPI.UnitTests
         IActionResult actionResult;
         OkObjectResult okResult;
         Logger<SearchUserController> fakeLogger;
+        IMemoryCache fakeMemoryCache;
+        List<State> stateList;
 
         /// <summary>
         /// Test Setup
@@ -50,7 +54,11 @@ namespace SearchUserAPI.UnitTests
             fakeUserRepository = A.Fake<ISearchUserRepository>();
             fakeSearchDetail = A.Fake<ISearchDetail>();
             fakeLogger = A.Fake<Logger<SearchUserController>>();
+            fakeMemoryCache = A.Fake<MemoryCache>();
             userList = new List<User>();
+            stateList = new List<State>();
+            stateList.Add(new State() { Code = "NY", Name = "New York" });
+            stateList.Add(new State() { Code = "NJ", Name = "New Jersey" }); ;
 
         }
 
@@ -59,11 +67,11 @@ namespace SearchUserAPI.UnitTests
         {
             // Arrange
             A.CallTo(() => fakeUserRepository.GetFilteredUsers(fakeSearchDetail)).Returns(userList);
-
+            A.CallTo(() => fakeUserRepository.GetAllStates()).Returns(stateList);
             string stateCode = "NJ";
 
             // Act
-            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail, fakeLogger);
+            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail,fakeMemoryCache, fakeLogger);
             actionResult = await searchUserController.GetByState(stateCode);
             okResult = actionResult as OkObjectResult;
 
@@ -72,19 +80,20 @@ namespace SearchUserAPI.UnitTests
         }
 
         [TestMethod]
-        public async Task SearchController_GetByState_InvalidState_ThrowsNoException()
+        public async Task SearchController_GetByState_InvalidState_ThrowsException()
         {
             // Arrange
             A.CallTo(() => fakeUserRepository.GetFilteredUsers(fakeSearchDetail)).Returns(userList);
-            string stateCode = "NJ";
+            A.CallTo(() => fakeUserRepository.GetAllStates()).Returns(stateList);
+            string stateCode = "AB";
 
             // Act
-            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail, fakeLogger);
+            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail, fakeMemoryCache, fakeLogger);
             actionResult = await searchUserController.GetByState(stateCode);
             okResult = actionResult as OkObjectResult;
 
             //Assert
-            Assert.IsNotNull(okResult);
+            Assert.IsNull(okResult);
         }
 
         [TestMethod]
@@ -95,11 +104,11 @@ namespace SearchUserAPI.UnitTests
             userList.Add(new User() { Age = 25, Email = "abc@gmail.com", FirstName = "A1", LastName = "B1", ID = 1, StateCode = "NJ" });
             userList.Add(new User() { Age = 26, Email = "bcd@gmail.com", FirstName = "A2", LastName = "B2", ID = 2, StateCode = "NJ" });
             userList.Add(new User() { Age = 27, Email = "john@gmail.com", FirstName = "A3", LastName = "B3", ID = 3, StateCode = "NJ" });
-
             A.CallTo(() => fakeUserRepository.GetFilteredUsers(fakeSearchDetail)).Throws(new Exception("Error occured"));
+            A.CallTo(() => fakeUserRepository.GetAllStates()).Returns(stateList);
 
             // Act
-            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail, fakeLogger);
+            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail, fakeMemoryCache, fakeLogger);
             actionResult = await searchUserController.GetByState(stateCode);
             okResult = actionResult as OkObjectResult;
 
@@ -112,9 +121,10 @@ namespace SearchUserAPI.UnitTests
         {
             // Arrange
             A.CallTo(() => fakeUserRepository.GetFilteredUsers(fakeSearchDetail)).Returns(userList);
+            A.CallTo(() => fakeUserRepository.GetAllStates()).Returns(stateList);
 
             // Act
-            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail, fakeLogger);
+            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail, fakeMemoryCache, fakeLogger);
             actionResult = await searchUserController.GetUsersByAgeRange(15, 99);
             okResult = actionResult as OkObjectResult;
 
@@ -127,11 +137,11 @@ namespace SearchUserAPI.UnitTests
         {
             // Arrange
             userList.Add(new User() { Age = 25, Email = "abc@gmail.com", FirstName = "A1", LastName = "B1", ID = 1, StateCode = "NJ" });
-
             A.CallTo(() => fakeUserRepository.GetFilteredUsers(fakeSearchDetail)).Returns(userList);
+            A.CallTo(() => fakeUserRepository.GetAllStates()).Returns(stateList);
 
             // Act
-            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail, fakeLogger);
+            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail, fakeMemoryCache, fakeLogger);
             actionResult = await searchUserController.GetUsersByAgeRange(15, 99);
             okResult = actionResult as OkObjectResult;
             List<UserViewModel> userVM = okResult.Value as List<UserViewModel>;
@@ -149,9 +159,10 @@ namespace SearchUserAPI.UnitTests
             // Arrange
             userList.Add(new User() { Age = 27, Email = "john@gmail.com", FirstName = "A3", LastName = "B3", ID = 3, StateCode = "NJ" });
             A.CallTo(() => fakeUserRepository.GetFilteredUsers(fakeSearchDetail)).Throws(new Exception("Error occured"));
+            A.CallTo(() => fakeUserRepository.GetAllStates()).Returns(stateList);
 
             // Act
-            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail, fakeLogger);
+            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail, fakeMemoryCache, fakeLogger);
             actionResult = await searchUserController.GetUsersByAgeRange(15, 99);
             okResult = actionResult as OkObjectResult;
 
@@ -164,9 +175,10 @@ namespace SearchUserAPI.UnitTests
         {
             // Arrange
             A.CallTo(() => fakeUserRepository.GetFilteredUsers(fakeSearchDetail)).Returns(userList);
+            A.CallTo(() => fakeUserRepository.GetAllStates()).Returns(stateList);
 
             // Act
-            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail, fakeLogger);
+            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail, fakeMemoryCache, fakeLogger);
             actionResult = await searchUserController.GetUsersByStateAndAgeRange("NJ", 15, 99);
             okResult = actionResult as OkObjectResult;
 
@@ -179,11 +191,11 @@ namespace SearchUserAPI.UnitTests
         {
             // Arrange
             userList.Add(new User() { Age = 25, Email = "abc@gmail.com", FirstName = "A1", LastName = "B1", ID = 1, StateCode = "NJ" });
-
             A.CallTo(() => fakeUserRepository.GetFilteredUsers(fakeSearchDetail)).Returns(userList);
+            A.CallTo(() => fakeUserRepository.GetAllStates()).Returns(stateList);
 
             // Act
-            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail, fakeLogger);
+            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail, fakeMemoryCache, fakeLogger);
             actionResult = await searchUserController.GetUsersByStateAndAgeRange("NJ", 15, 99);
             okResult = actionResult as OkObjectResult;
             List<UserViewModel> userVM = okResult.Value as List<UserViewModel>;
@@ -202,11 +214,11 @@ namespace SearchUserAPI.UnitTests
         {
             // Arrange
             userList.Add(new User() { Age = 27, Email = "john@gmail.com", FirstName = "A3", LastName = "B3", ID = 3, StateCode = "NJ" });
-
             A.CallTo(() => fakeUserRepository.GetFilteredUsers(fakeSearchDetail)).Throws(new Exception("Error occured"));
+            A.CallTo(() => fakeUserRepository.GetAllStates()).Returns(stateList);
 
             // Act
-            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail, fakeLogger);
+            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail, fakeMemoryCache,fakeLogger);
             actionResult = await searchUserController.GetUsersByStateAndAgeRange("NJ", 15, 99);
             okResult = actionResult as OkObjectResult;
 
@@ -219,9 +231,10 @@ namespace SearchUserAPI.UnitTests
         {
             // Arrange
             A.CallTo(() => fakeUserRepository.GetFilteredUsers(fakeSearchDetail)).Returns(userList);
+            A.CallTo(() => fakeUserRepository.GetAllStates()).Returns(stateList);
 
             // Act
-            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail, fakeLogger);
+            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail, fakeMemoryCache, fakeLogger);
             actionResult = await searchUserController.GetUsersByStateOrAgeRange("NJ", 15, 99);
             okResult = actionResult as OkObjectResult;
 
@@ -236,9 +249,10 @@ namespace SearchUserAPI.UnitTests
             userList.Add(new User() { Age = 25, Email = "abc@gmail.com", FirstName = "A1", LastName = "B1", ID = 1, StateCode = "NJ" });
 
             A.CallTo(() => fakeUserRepository.GetFilteredUsers(fakeSearchDetail)).Returns(userList);
+            A.CallTo(() => fakeUserRepository.GetAllStates()).Returns(stateList);
 
             // Act
-            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail, fakeLogger);
+            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail, fakeMemoryCache, fakeLogger);
             actionResult = await searchUserController.GetUsersByStateOrAgeRange("NJ", 15, 99);
             okResult = actionResult as OkObjectResult;
             List<UserViewModel> userVM = okResult.Value as List<UserViewModel>;
@@ -258,9 +272,10 @@ namespace SearchUserAPI.UnitTests
             // Arrange
             userList.Add(new User() { Age = 27, Email = "john@gmail.com", FirstName = "A3", LastName = "B3", ID = 3, StateCode = "NJ" });
             A.CallTo(() => fakeUserRepository.GetFilteredUsers(fakeSearchDetail)).Throws(new Exception("Error occured"));
+            A.CallTo(() => fakeUserRepository.GetAllStates()).Returns(stateList);
 
             // Act
-            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail, fakeLogger);
+            searchUserController = new SearchUserController(fakeUserRepository, mapper, fakeSearchDetail, fakeMemoryCache, fakeLogger);
             actionResult = await searchUserController.GetUsersByStateOrAgeRange("NJ", 15, 99);
             okResult = actionResult as OkObjectResult;
 

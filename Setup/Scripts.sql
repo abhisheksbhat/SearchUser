@@ -179,6 +179,16 @@ INSERT [dbo].[User] ([ID], [FirstName], [StateCode], [Age], [Email], [LastName])
 GO
 INSERT [dbo].[User] ([ID], [FirstName], [StateCode], [Age], [Email], [LastName]) VALUES (7, N'Mason', N'MO', 25, N'mason@pefin.com', NULL)
 GO
+INSERT [dbo].[User] ([ID], [FirstName], [StateCode], [Age], [Email], [LastName]) VALUES (8, N'Jack', N'NJ', 89, N'jackd@pefin.com', N'D')
+GO
+INSERT [dbo].[User] ([ID], [FirstName], [StateCode], [Age], [Email], [LastName]) VALUES (9, N'Antony', N'MO', 72, N'antony@gmail.com', NULL)
+GO
+INSERT [dbo].[User] ([ID], [FirstName], [StateCode], [Age], [Email], [LastName]) VALUES (10, N'Scott', N'NY', 50, N'scottd@hotmail.com', N'D')
+GO
+INSERT [dbo].[User] ([ID], [FirstName], [StateCode], [Age], [Email], [LastName]) VALUES (11, N'Sue', N'NJ', 35, N'sue@gmail.com', N'K')
+GO
+INSERT [dbo].[User] ([ID], [FirstName], [StateCode], [Age], [Email], [LastName]) VALUES (12, N'Suven', N'CO', 38, N'suven@pifen.com', N'S')
+GO
 SET IDENTITY_INSERT [dbo].[User] OFF
 GO
 ALTER TABLE [dbo].[User]  WITH CHECK ADD  CONSTRAINT [FK_User_State] FOREIGN KEY([StateCode])

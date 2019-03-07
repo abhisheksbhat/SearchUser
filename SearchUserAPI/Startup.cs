@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SearchUserAPI.Models;
 using SearchUserAPI.Repositories;
+using SearchUserAPI.Utility;
 using Swashbuckle.AspNetCore.Swagger;
 #endregion
 namespace SearchUserAPI
@@ -39,6 +40,7 @@ namespace SearchUserAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            services.AddMemoryCache();
 
             // Register Mapping profile for AutoMapper
             var mappingConfig = new MapperConfiguration(mc =>
@@ -98,7 +100,8 @@ namespace SearchUserAPI
 
             // Adds MVC to pipeline execution
             app.UseMvc();
-            
+
+
         }
     }
 }
