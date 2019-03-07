@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2037
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SearchUserAPI", "SearchUserAPI\SearchUserAPI.csproj", "{B995FA35-6FE1-42A2-9D61-DD5C8440BC8E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SearchUserAPI.UnitTests", "SearchUserAPI.UnitTests\SearchUserAPI.UnitTests.csproj", "{6EBFE23E-06BE-4433-9FFC-DD91D94E93C0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B995FA35-6FE1-42A2-9D61-DD5C8440BC8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B995FA35-6FE1-42A2-9D61-DD5C8440BC8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B995FA35-6FE1-42A2-9D61-DD5C8440BC8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B995FA35-6FE1-42A2-9D61-DD5C8440BC8E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EBFE23E-06BE-4433-9FFC-DD91D94E93C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EBFE23E-06BE-4433-9FFC-DD91D94E93C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EBFE23E-06BE-4433-9FFC-DD91D94E93C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EBFE23E-06BE-4433-9FFC-DD91D94E93C0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {335CD753-6D60-4D6E-A934-02523E2A965C}
+	EndGlobalSection
+EndGlobal
