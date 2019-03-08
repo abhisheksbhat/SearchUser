@@ -30,7 +30,7 @@ namespace SearchUserAPI.Repositories
         /// <returns>Returns list of States</returns>
         public async Task<List<State>> GetAllStates()
         {
-            List<State> stateList = await _context.State.ToListAsync();
+            List<State> stateList = await _context.State.AsNoTracking().ToListAsync();
             return stateList;
         }
 
@@ -40,7 +40,7 @@ namespace SearchUserAPI.Repositories
         /// <returns>Returns a user list</returns>
         public async Task<List<User>> GetAllUsers()
         {
-           List<User> usersList = await _context.User.ToListAsync();
+           List<User> usersList = await _context.User.AsNoTracking().ToListAsync();
            return usersList;
         }
 

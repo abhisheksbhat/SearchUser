@@ -21,7 +21,7 @@ namespace SearchUserAPI.UnitTests
     /// Unit Tests for SearchController WebAPI
     /// </summary>
     [TestClass]
-    public class SearchControllerUnitTests
+    public class SearchUserControllerUnitTests
     {
         /// <summary>
         /// Private members
@@ -63,7 +63,7 @@ namespace SearchUserAPI.UnitTests
         }
 
         [TestMethod]
-        public async Task SearchController_GetByState_ValidState_ThrowsNoException()
+        public async Task SearchUserController_GetByState_ValidState_ThrowsNoException()
         {
             // Arrange
             A.CallTo(() => fakeUserRepository.GetFilteredUsers(fakeSearchDetail)).Returns(userList);
@@ -80,7 +80,7 @@ namespace SearchUserAPI.UnitTests
         }
 
         [TestMethod]
-        public async Task SearchController_GetByState_InvalidState_ThrowsException()
+        public async Task SearchUserController_GetByState_InvalidState_ThrowsException()
         {
             // Arrange
             A.CallTo(() => fakeUserRepository.GetFilteredUsers(fakeSearchDetail)).Returns(userList);
@@ -97,7 +97,7 @@ namespace SearchUserAPI.UnitTests
         }
 
         [TestMethod]
-        public async Task SearchController_GetByState_ValidState_ShouldHandleException()
+        public async Task SearchUserController_GetByState_ValidState_ShouldHandleException()
         {
             // Arrange
             string stateCode = "NJ";
@@ -117,7 +117,7 @@ namespace SearchUserAPI.UnitTests
         }
 
         [TestMethod]
-        public async Task SearchController_GetByState_ValidAgeRange_ThrowsNoException()
+        public async Task SearchUserController_GetByState_ValidAgeRange_ThrowsNoException()
         {
             // Arrange
             A.CallTo(() => fakeUserRepository.GetFilteredUsers(fakeSearchDetail)).Returns(userList);
@@ -133,7 +133,7 @@ namespace SearchUserAPI.UnitTests
         }
 
         [TestMethod]
-        public async Task SearchController_GetByState_ValidAgeRange_ReturnsProperResults()
+        public async Task SearchUserController_GetByState_ValidAgeRange_ReturnsProperResults()
         {
             // Arrange
             userList.Add(new User() { Age = 25, Email = "abc@gmail.com", FirstName = "A1", LastName = "B1", ID = 1, StateCode = "NJ" });
@@ -154,7 +154,7 @@ namespace SearchUserAPI.UnitTests
         }
 
         [TestMethod]
-        public async Task SearchController_GetByState_ValidAgeRange_ShouldHandleException()
+        public async Task SearchUserController_GetByState_ValidAgeRange_ShouldHandleException()
         {
             // Arrange
             userList.Add(new User() { Age = 27, Email = "john@gmail.com", FirstName = "A3", LastName = "B3", ID = 3, StateCode = "NJ" });
@@ -171,7 +171,7 @@ namespace SearchUserAPI.UnitTests
         }
 
         [TestMethod]
-        public async Task SearchController_GetUsersByStateAndAgeRange_ValidParams_ThrowsNoException()
+        public async Task SearchUserController_GetUsersByStateAndAgeRange_ValidParams_ThrowsNoException()
         {
             // Arrange
             A.CallTo(() => fakeUserRepository.GetFilteredUsers(fakeSearchDetail)).Returns(userList);
@@ -187,7 +187,7 @@ namespace SearchUserAPI.UnitTests
         }
 
         [TestMethod]
-        public async Task SearchController_GetUsersByStateAndAgeRange_ValidParams_ReturnsProperResults()
+        public async Task SearchUserController_GetUsersByStateAndAgeRange_ValidParams_ReturnsProperResults()
         {
             // Arrange
             userList.Add(new User() { Age = 25, Email = "abc@gmail.com", FirstName = "A1", LastName = "B1", ID = 1, StateCode = "NJ" });
@@ -210,7 +210,7 @@ namespace SearchUserAPI.UnitTests
         }
 
         [TestMethod]
-        public async Task SearchController_GetUsersByStateAndAgeRange_ValidParams_ShouldHandleException()
+        public async Task SearchUserController_GetUsersByStateAndAgeRange_ValidParams_ShouldHandleException()
         {
             // Arrange
             userList.Add(new User() { Age = 27, Email = "john@gmail.com", FirstName = "A3", LastName = "B3", ID = 3, StateCode = "NJ" });
@@ -227,7 +227,7 @@ namespace SearchUserAPI.UnitTests
         }
 
         [TestMethod]
-        public async Task SearchController_GetUsersByStateOrAgeRange_ValidParams_ThrowsNoException()
+        public async Task SearchUserController_GetUsersByStateOrAgeRange_ValidParams_ThrowsNoException()
         {
             // Arrange
             A.CallTo(() => fakeUserRepository.GetFilteredUsers(fakeSearchDetail)).Returns(userList);
@@ -243,7 +243,7 @@ namespace SearchUserAPI.UnitTests
         }
 
         [TestMethod]
-        public async Task SearchController_GetUsersByStateOrAgeRange_ValidParams_ReturnsProperResults()
+        public async Task SearchUserController_GetUsersByStateOrAgeRange_ValidParams_ReturnsProperResults()
         {
             // Arrange
             userList.Add(new User() { Age = 25, Email = "abc@gmail.com", FirstName = "A1", LastName = "B1", ID = 1, StateCode = "NJ" });
@@ -267,7 +267,7 @@ namespace SearchUserAPI.UnitTests
         }
 
         [TestMethod]
-        public async Task SearchController_GetUsersByStateOrAgeRange_ValidParams_ShouldHandleException()
+        public async Task SearchUserController_GetUsersByStateOrAgeRange_ValidParams_ShouldHandleException()
         {
             // Arrange
             userList.Add(new User() { Age = 27, Email = "john@gmail.com", FirstName = "A3", LastName = "B3", ID = 3, StateCode = "NJ" });
