@@ -1,21 +1,19 @@
-﻿using AutoMapper;
+﻿#region Namespaces
 using FakeItEasy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SearchUserAPI.Controllers;
 using SearchUserAPI.Models;
 using SearchUserAPI.Repositories;
 using SearchUserAPI.Utility;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
+#endregion
 
 namespace SearchUserAPI.UnitTests
 {
     [TestClass]
-    public class SearchSearchUserRepositoryUnitTests
+    public class SearchUserRepositoryUnitTests
     {
         /// <summary>
         /// Private variables
@@ -24,6 +22,7 @@ namespace SearchUserAPI.UnitTests
         ISearchDetail searchDetail;
         UserDbContext context;
         ISearchUserRepository searchSearchUserRepository;
+        IMemoryCache fakeMemoryCache;
 
         /// <summary>
         /// Initialization
@@ -50,6 +49,7 @@ namespace SearchUserAPI.UnitTests
             context.SaveChanges();
 
             searchSearchUserRepository = new SearchUserRepository(context);
+            fakeMemoryCache = A.Fake<MemoryCache>();
         }
 
         [TestMethod]
@@ -78,13 +78,14 @@ namespace SearchUserAPI.UnitTests
         }
 
         [TestMethod]
-        public async Task SearchUserRepository_GetFilteredUsers_SearchByStateCode_ShouldReturnProperResults_Test3()
+        public async Task SearchUserRepository_GetFilteredUsers_SearchByStateCode_MemoryCacheInvoked_ThrowsNoException()
         {
             searchDetail.StateCode = "CO";
             searchDetail.SearchCriteriaEnum = SearchCriteria.State;
             var results = await searchSearchUserRepository.GetFilteredUsers(searchDetail);
             Assert.AreEqual(1, results.Count);
         }
+
 
         [TestMethod]
         public async Task SearchUserRepository_GetFilteredUsers_SearchByStateCode_ShouldNotReturnProperResults_Test1()

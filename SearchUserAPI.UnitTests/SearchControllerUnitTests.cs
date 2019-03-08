@@ -294,6 +294,8 @@ namespace SearchUserAPI.UnitTests
             actionResult = null;
             okResult = null;
             fakeLogger = null;
+            fakeMemoryCache = null;
+            stateList = null;
         }
 
     }
